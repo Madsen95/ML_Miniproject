@@ -129,4 +129,4 @@ dmypy.json
 .pyre/
 
 # Too large files
-.joblib
+*.joblib
