@@ -32,5 +32,14 @@ def load_MNIST(data_name, p=1, K=10, Norm=255.0):
     return data_set, labels
 
 def get_accuracy(tst_pred, tst_lbls):
+    """
+    Function to calculater confusion matrix and accuracy of prediction.
+
+    Args:
+    Returns:
+    """
     cm = confusion_matrix(tst_lbls, tst_pred)
-    return cm
+
+    acc = np.round(np.sum(np.diagonal(cm)) / np.sum(cm) * 100, 2)
+
+    return cm, acc

@@ -1,10 +1,9 @@
 import numpy as np
-from sklearn import svm
 import pickle
 from joblib import dump, load
 import time
 
-class SVM:
+class MLP:
     """
     Support Vector Machine Class
 
@@ -16,12 +15,11 @@ class SVM:
         save (bool): Save model if true
     """
 
-    def __init__(self, trn, trn_lbls, model=None, kernel='linear', save=False):
+    def __init__(self, trn, trn_lbls, model=None, save=False):
 
         self.trn = trn
         self.trn_lbls = trn_lbls
         self.model = model
-        self.kernel = kernel
         self.save = save
 
         self.N, self.dim = self.trn.shape
@@ -43,35 +41,34 @@ class SVM:
             td (float): Execution time [s]
         """
         t0 = time.time()
-        self.clf = svm.SVC(kernel=self.kernel)
-        self.clf.fit(self.trn, self.trn_lbls)
+        # ...
         t1 = time.time()
         td = t1 - t0
 
         print(f'Model was trained in {np.round(td, 2)} sec')
 
         if self.save:
-            dump(self.clf, f'data/SVM_{self.dim}dim_{self.N}trn.joblib')
+            dump(self.clf, f'data/MLP_{self.dim}dim_{self.N}trn.joblib')
             print('Model saved.')
 
         return td
 
     def load_model(self):
         """
-        Load existing SVM model
+        Load existing MLP model
         """
         self.clf = load(self.model)
     
     def make_prediction(self, tst):
         """
-        Make prediction based on SVM model
+        Make prediction based on MLP model
 
         Returns:
             pred (np.array): Predictions
             td (float): Execution time [s]
         """
         t0 = time.time()
-        pred = self.clf.predict(tst)
+        pred = np.zeros(len(tst))
         t1 = time.time()
         td = t1 - t0
 
