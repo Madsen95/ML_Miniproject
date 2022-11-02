@@ -22,4 +22,5 @@ print(N, dim)
 
 # CNN
 cnn = CNN(trn, trn_lbls)
-#print(cnn.trn.shape, cnn.num_classes)
+pred, _ = cnn.make_prediction(tst)
+print(get_accuracy(pred, tst_lbls))

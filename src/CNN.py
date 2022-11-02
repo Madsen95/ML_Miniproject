@@ -1,6 +1,8 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import time
 import os
-
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' # Stop printing warnings
 from tensorflow import keras
 from joblib import dump, load
 
@@ -22,7 +24,7 @@ class CNN:
         self.history = None
 
         if self.model is None:
-            self.model = f'data/CNN_{self.epochs}ep_{self.batch_size}bs.joblib'
+            self.model = f'data/CNN_{self.epochs}ep_{self.batch_size}bs.h5'
             print(f'Looking for model {self.model}')
             if os.path.isfile(self.model):
                 print('Model found and loaded')
@@ -35,6 +37,8 @@ class CNN:
             self.load_model()
 
     def train_model(self):
+        t0 = time.time()
+
         self.clf = keras.Sequential([keras.layers.Input(shape =self.input_shape),
                           keras.layers.Conv2D(6, 5, padding = "same", activation = "relu"),
                           keras.layers.AveragePooling2D(2),
@@ -45,18 +49,71 @@ class CNN:
                           keras.layers.Dense(84, activation = "relu"),
                           keras.layers.Dense(self.num_classes, "softmax")],name="LeNet5")
         
-        self.clf.summary()
-
         self.clf.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
         self.history = self.clf.fit(self.x_trn, self.y_trn, batch_size=self.batch_size, epochs=self.epochs)
 
-        self.model = f'data/CNN_{self.epochs}ep_{self.batch_size}bs.joblib'
+        t1 = time.time()
+        td = t1 - t0
+        print(f'Model was trained in {np.round(td, 2)}')
 
-        dump(self.clf, self.model)
+        self.model_summary()
+
+        self.model = f'data/CNN_{self.epochs}ep_{self.batch_size}bs.h5'
+
+        self.clf.save(self.model)
+
+        return td
 
     def load_model(self):
         """
         Load existing MLP model
         """
-        self.clf = load(self.model)
+        self.clf = keras.models.load_model(self.model)
+    
+    def model_summary(self):
+
+        self.clf.summary()
+
+        if self.history is None:
+            print('Cannot evaluate training for loaded model')
+            return
+        else:
+            trn_loss = np.array(self.history.history['loss'])
+            trn_acc = np.array(self.history.history['accuracy'])
+
+            fig, ax1 = plt.subplots()
+            ax2 = ax1.twinx()
+            ax1.plot(np.arange(self.epochs)+1, trn_loss, 'b-', label = 'Loss')
+            ax2.plot(np.arange(self.epochs)+1, 100*trn_acc, 'g-', label = 'Acc.')
+
+            ax1.set_xlabel('Epochs')
+            ax1.set_ylabel('Training Loss')
+            ax2.set_ylabel('Training Accuracy')
+
+            fig.legend()
+    
+    def make_prediction(self, tst):
+        """
+        Make prediction based on MLP model
+
+        Returns:
+            pred (np.array): Predictions
+            td (float): Execution time [s]
+        """
+
+        N, dim = tst.shape
+        if dim != self.dim:
+            print('Input data wrong dimensions.')
+            return
+
+        x_tst = tst.reshape(N, int(np.sqrt(dim)), int(np.sqrt(dim)), 1)
+
+        t0 = time.time()
+        pred = np.argmax(self.clf.predict(x_tst), axis=1)
+        t1 = time.time()
+        td = t1 - t0
+
+        print(f'Predictions took {np.round(td, 2)} sec')
+
+        return pred, td
