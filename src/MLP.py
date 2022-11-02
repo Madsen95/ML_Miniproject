@@ -1,5 +1,6 @@
 import numpy as np
-import pickle
+from sklearn.neural_network import MLPClassifier as MLPC
+import os
 from joblib import dump, load
 import time
 
@@ -15,20 +16,30 @@ class MLP:
         save (bool): Save model if true
     """
 
-    def __init__(self, trn, trn_lbls, model=None, save=False):
+    def __init__(self, trn, trn_lbls, model=None, layer_size=None, solver='sgd', max_iter=1000):
 
         self.trn = trn
         self.trn_lbls = trn_lbls
         self.model = model
-        self.save = save
+        self.layer_size = layer_size
+        self.solver = solver
+        self.max_iter = max_iter
 
         self.N, self.dim = self.trn.shape
         self.clf = None
 
+        if layer_size is None:
+            self.layer_size = len(np.unique(trn_lbls))
+
         if self.model is None:
-            print('Training new model')
-            _ = self.train_model()
-            
+            self.model = f'data/MLP_{self.dim}dim_{self.N}trn.joblib'
+            print(f'Looking for model {self.model}')
+            if os.path.isfile(self.model):
+                print('Model found and loaded')
+                self.load_model()
+            else:
+                print('No model found, training new')
+                _ = self.train_model()            
         else:
             print('Loading model', self.model)
             self.load_model()
@@ -41,15 +52,17 @@ class MLP:
             td (float): Execution time [s]
         """
         t0 = time.time()
-        # ...
+        self.clf = MLPC(hidden_layer_sizes=self.layer_size,
+                        max_iter=1000,
+                        solver=self.solver,
+                        random_state=1)
+        self.clf.fit(self.trn, self.trn_lbls)
         t1 = time.time()
         td = t1 - t0
 
         print(f'Model was trained in {np.round(td, 2)} sec')
-
-        if self.save:
-            dump(self.clf, f'data/MLP_{self.dim}dim_{self.N}trn.joblib')
-            print('Model saved.')
+        dump(self.clf, f'data/MLP_{self.dim}dim_{self.N}trn.joblib')
+        print('Model saved.')
 
         return td
 
@@ -68,7 +81,7 @@ class MLP:
             td (float): Execution time [s]
         """
         t0 = time.time()
-        pred = np.zeros(len(tst))
+        pred = self.clf.predict(tst)
         t1 = time.time()
         td = t1 - t0
 

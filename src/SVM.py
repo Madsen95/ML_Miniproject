@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn import svm
-import pickle
 from joblib import dump, load
 import time
+import os
 
 class SVM:
     """
@@ -16,21 +16,26 @@ class SVM:
         save (bool): Save model if true
     """
 
-    def __init__(self, trn, trn_lbls, model=None, kernel='linear', save=False):
+    def __init__(self, trn, trn_lbls, model=None, kernel='linear', force_train=False):
 
         self.trn = trn
         self.trn_lbls = trn_lbls
         self.model = model
         self.kernel = kernel
-        self.save = save
+        self.force_train = force_train
 
         self.N, self.dim = self.trn.shape
         self.clf = None
 
         if self.model is None:
-            print('Training new model')
-            _ = self.train_model()
-            
+            self.model = f'data/SVM_{self.dim}dim_{self.N}trn.joblib'
+            print(f'Looking for model {self.model}')
+            if os.path.isfile(self.model):
+                print('Model found and loaded')
+                self.load_model()
+            else:
+                print('No model found, training new')
+                _ = self.train_model()            
         else:
             print('Loading model', self.model)
             self.load_model()
@@ -49,10 +54,8 @@ class SVM:
         td = t1 - t0
 
         print(f'Model was trained in {np.round(td, 2)} sec')
-
-        if self.save:
-            dump(self.clf, f'data/SVM_{self.dim}dim_{self.N}trn.joblib')
-            print('Model saved.')
+        dump(self.clf, f'data/SVM_{self.dim}dim_{self.N}trn.joblib')
+        print('Model saved.')
 
         return td
 
