@@ -11,14 +11,14 @@ N, dim = trn.shape
 print(N, dim)
 
 # SVM
-#svm = SVM(trn, trn_lbls)
-#pred, _ = svm.make_prediction(tst)
-#print(get_accuracy(pred, tst_lbls))
+svm = SVM(trn, trn_lbls)
+pred, _ = svm.make_prediction(tst)
+print(get_accuracy(pred, tst_lbls))
 
 # MLP
-#mlp = MLP(trn, trn_lbls, layer_size=10)
-#pred, _ = mlp.make_prediction(tst)
-#print(get_accuracy(pred, tst_lbls))
+mlp = MLP(trn, trn_lbls, layer_size=10)
+pred, _ = mlp.make_prediction(tst)
+print(get_accuracy(pred, tst_lbls))
 
 # CNN
 cnn = CNN(trn, trn_lbls)
