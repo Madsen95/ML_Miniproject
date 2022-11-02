@@ -128,5 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Too large files
+# Project files not to push
 *.joblib
+*.h5
