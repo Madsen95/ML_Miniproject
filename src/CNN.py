@@ -23,7 +23,7 @@ class CNN:
         self.history = None
 
         if self.model is None:
-            self.model = f'data/CNN_{self.epochs}ep_{self.batch_size}bs.h5'
+            self.model = f'data/CNN_{self.dim}dim_{self.N}trn_{self.epochs}ep_{self.batch_size}bs.h5'
             print(f'Looking for model {self.model}')
             if os.path.isfile(self.model):
                 print('Model found and loaded')
@@ -68,7 +68,7 @@ class CNN:
 
         self.model_summary()
 
-        self.model = f'data/CNN_{self.epochs}ep_{self.batch_size}bs.h5'
+        self.model = f'data/CNN_{self.dim}dim_{self.N}trn_{self.epochs}ep_{self.batch_size}bs.h5'
 
         self.clf.save(self.model)
 

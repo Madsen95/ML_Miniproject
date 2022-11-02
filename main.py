@@ -4,8 +4,8 @@ from src.SVM import SVM
 from src.MLP import MLP
 from src.CNN import CNN
 
-trn, trn_lbls = load_MNIST('train', p=0.01)
-tst, tst_lbls = load_MNIST('test', p=0.01)
+trn, trn_lbls = load_MNIST('train', p=1)
+tst, tst_lbls = load_MNIST('test', p=1)
 
 N, dim = trn.shape
 print(N, dim)
