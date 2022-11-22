@@ -16,13 +16,15 @@ class SVM:
         save (bool): Save model if true
     """
 
-    def __init__(self, trn, trn_lbls, model=None, kernel='linear', force_train=False):
+    def __init__(self, trn, trn_lbls, model=None, kernel='linear', force_train=False, save_model=True, C=1):
 
         self.trn = trn
         self.trn_lbls = trn_lbls
         self.model = model
         self.kernel = kernel
         self.force_train = force_train
+        self.save_model = save_model
+        self.C = C
 
         self.N, self.dim = self.trn.shape
         self.clf = None
@@ -30,7 +32,10 @@ class SVM:
         if self.model is None:
             self.model = f'data/SVM_{self.dim}dim_{self.N}trn.joblib'
             print(f'Looking for model {self.model}')
-            if os.path.isfile(self.model):
+            if self.force_train:
+                print('Force training model')
+                _ = self.train_model()  
+            elif os.path.isfile(self.model):
                 print('Model found and loaded')
                 self.load_model()
             else:
@@ -40,22 +45,28 @@ class SVM:
             print('Loading model', self.model)
             self.load_model()
         
-    def train_model(self):
+    def train_model(self, kernel=None, C=None):
         """
         Train a SVM model based on class data
 
         Returns:
             td (float): Execution time [s]
         """
+        if kernel is not None:
+            self.kernel = kernel
+        if C is not None:
+            self.C = C
+
         t0 = time.time()
-        self.clf = svm.SVC(kernel=self.kernel)
+        self.clf = svm.SVC(kernel=self.kernel, C=self.C)
         self.clf.fit(self.trn, self.trn_lbls)
         t1 = time.time()
         td = t1 - t0
 
         print(f'Model was trained in {np.round(td, 2)} sec')
-        dump(self.clf, f'data/SVM_{self.dim}dim_{self.N}trn.joblib')
-        print('Model saved.')
+        if self.save_model:
+            dump(self.clf, f'data/SVM_{self.dim}dim_{self.N}trn.joblib')
+            print('Model saved.')
 
         return td
 
