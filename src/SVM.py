@@ -16,7 +16,7 @@ class SVM:
         save (bool): Save model if true
     """
 
-    def __init__(self, trn, trn_lbls, model=None, kernel='linear', force_train=False, save_model=True, C=1, degree=3):
+    def __init__(self, trn, trn_lbls, model=None, kernel='linear', force_train=False, save_model=True, C=10, degree=2, gamma='scale'):
 
         self.trn = trn
         self.trn_lbls = trn_lbls
@@ -26,6 +26,7 @@ class SVM:
         self.save_model = save_model
         self.C = C
         self.degree = degree
+        self.gamma = gamma
 
         self.N, self.dim = self.trn.shape
         self.clf = None
@@ -46,7 +47,7 @@ class SVM:
             print('Loading model', self.model)
             self.load_model()
         
-    def train_model(self, kernel=None, C=None, degree=None):
+    def train_model(self, kernel=None, C=None, degree=None, gamma=None):
         """
         Train a SVM model based on class data
 
@@ -59,9 +60,11 @@ class SVM:
             self.C = C
         if degree is not None:
             self.degree = degree
+        if gamma is not None:
+            self.gamma = gamma
 
         t0 = time.time()
-        self.clf = svm.SVC(kernel=self.kernel, C=self.C, degree=self.degree)
+        self.clf = svm.SVC(kernel=self.kernel, C=self.C, degree=self.degree, gamma=self.gamma)
         self.clf.fit(self.trn, self.trn_lbls)
         t1 = time.time()
         td = t1 - t0

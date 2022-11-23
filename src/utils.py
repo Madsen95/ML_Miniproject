@@ -50,7 +50,7 @@ def get_accuracy(tst_pred, tst_lbls):
     return cm, acc
 
 ## Test functions for SVM
-def svm_kernel_test(trn, trn_lbls, tst, tst_lbls, kernels):
+def svm_kernel(trn, trn_lbls, tst, tst_lbls, kernels):
 
     for kernel in kernels:
 
@@ -86,13 +86,14 @@ def svm_cost_factors(trn, trn_lbls, tst, tst_lbls, kernels):
     ax.set_xlabel('Cost parameter C')
     ax.set_ylabel('Accuracy')
     fig.tight_layout()
+    #fig.savefig('dev_svm_C.pdf', dpi=100)
     
 def svm_poly_degree(trn, trn_lbls, tst, tst_lbls, degrees):
     acc = []
 
     for degree in degrees:
         print(degree)
-        svm = SVM(trn, trn_lbls, kernel='poly', force_train=True, save_model=False, C=10, degree=degree)
+        svm = SVM(trn, trn_lbls, kernel='poly', force_train=True, save_model=False, degree=degree)
         pred, _ = svm.make_prediction(tst)
         _, acr = get_accuracy(pred, tst_lbls)
         acc.append(acr)
@@ -101,10 +102,12 @@ def svm_poly_degree(trn, trn_lbls, tst, tst_lbls, degrees):
     fig, ax = plt.subplots(figsize=([8.0, 6.0/2]))
     ax.plot(degrees, acc)
     ax.xaxis.get_major_locator().set_params(integer=True)
-    ax.set_xlabel('Degree')
+    ax.set_xlabel('Polynomial degree')
     ax.set_ylabel('Accuracy')
     ax.grid()
     fig.tight_layout()
+
+    fig.savefig('dev_svm_poly_degree.pdf', dpi=100)
 
 def svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, gammas, kernels):
     
@@ -115,7 +118,7 @@ def svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, gammas, kernels):
         acc = []
         for g in gammas:
             print(g)
-            svm = SVM(trn, trn_lbls, kernel=kernel, force_train=True, save_model=False, C=10, degree=3, gamma=g)
+            svm = SVM(trn, trn_lbls, kernel=kernel, force_train=True, save_model=False, gamma=g)
             pred, _ = svm.make_prediction(tst)
             _, acr = get_accuracy(pred, tst_lbls)
             acc.append(acr)
@@ -123,8 +126,20 @@ def svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, gammas, kernels):
 
         ax.semilogx(gammas, acc, label=kernel)
 
+        print(kernel, 'default settings')
+        gammas_d = ['scale', 'auto']
+        for g in gammas_d:
+            print(g)
+            svm = SVM(trn, trn_lbls, kernel=kernel, force_train=True, save_model=False, gamma=g)
+            pred, _ = svm.make_prediction(tst)
+            _, acr = get_accuracy(pred, tst_lbls)
+            print(acr)
+
+            ax.scatter(svm.clf._gamma, acr, label=f'{kernel}: {g}')
+
     ax.legend()
     ax.grid()
     ax.set_xlabel('Cost parameter C')
     ax.set_ylabel('Accuracy')
     fig.tight_layout()
+    fig.savefig('dev_svm_gamma.pdf', dpi=100)
