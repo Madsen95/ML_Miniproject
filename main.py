@@ -4,8 +4,8 @@ from src.SVM import SVM
 from src.MLP import MLP
 from src.CNN import CNN
 
-trn, trn_lbls = load_MNIST('train', p=1)
-tst, tst_lbls = load_MNIST('test', p=1)
+trn, trn_lbls = load_MNIST('train', p=0.05)
+tst, tst_lbls = load_MNIST('test', p=0.05)
 
 N, dim = trn.shape
 print(N, dim)
@@ -16,12 +16,10 @@ do_cnn = False
 
 if do_svm:
 
-    #svm_kernel_test(trn, trn_lbls, tst, tst_lbls)
-
-    svm_cost_factors(trn, trn_lbls, tst, tst_lbls, 'poly')
-    svm_cost_factors(trn, trn_lbls, tst, tst_lbls, 'rbf')
-    #svm = SVM(trn, trn_lbls, kernel='linear', force_train=False, save_model=False)
-    
+    #svm_kernel_test(trn, trn_lbls, tst, tst_lbls, ['linear', 'poly', 'rbf', 'sigmoid'])
+    #svm_cost_factors(trn, trn_lbls, tst, tst_lbls, ['poly', 'rbf'])
+    #svm_poly_degree(trn, trn_lbls, tst, tst_lbls, [1, 2, 3, 4, 5])
+    svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, [0.01, 0.1, 1, 10, 100], ['poly', 'rbf'])
 
 if do_mlp:
     # MLP

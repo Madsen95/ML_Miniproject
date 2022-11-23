@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from src.SVM import SVM
 
+## Multipurpose functions
 def load_MNIST(data_name, p=1, K=10, Norm=255.0):
     """
     Function to load and normalize arbitrary data from MNIST data set.
@@ -48,61 +49,82 @@ def get_accuracy(tst_pred, tst_lbls):
 
     return cm, acc
 
-def svm_kernel_test(trn, trn_lbls, tst, tst_lbls):
-    print('Testing linear kernel')
-    svm = SVM(trn, trn_lbls, kernel='linear', force_train=True, save_model=False)
-    pred, _ = svm.make_prediction(tst)
-    cm, acc = get_accuracy(pred, tst_lbls)
-    print(acc)
+## Test functions for SVM
+def svm_kernel_test(trn, trn_lbls, tst, tst_lbls, kernels):
 
-    plt.subplots()
-    sb.heatmap(cm, annot=True)
-    plt.show()
+    for kernel in kernels:
+
+        print('Testing kernel:', kernel)
+        svm = SVM(trn, trn_lbls, kernel='linear', force_train=True, save_model=False)
+        pred, _ = svm.make_prediction(tst)
+        cm, acc = get_accuracy(pred, tst_lbls)
+        print(acc)
+
+        plt.subplots()
+        sb.heatmap(cm, annot=True)
+        plt.show()
+
+def svm_cost_factors(trn, trn_lbls, tst, tst_lbls, kernels):
+
+    fig, ax = plt.subplots(figsize=([8.0, 6.0/2]))
+
+    for kernel in kernels:
+        acc = []
+        C = [0.01, 0.1, 1, 10, 100, 1000, 10000]
+        for c in C:
+            print(c)
+            svm = SVM(trn, trn_lbls, kernel=kernel, force_train=True, save_model=False, C=c)
+            pred, _ = svm.make_prediction(tst)
+            _, acr = get_accuracy(pred, tst_lbls)
+            acc.append(acr)
+            print(acc)
+
+        ax.semilogx(C, acc, label=kernel)
+
+    ax.legend()
+    ax.grid()
+    ax.set_xlabel('Cost parameter C')
+    ax.set_ylabel('Accuracy')
+    fig.tight_layout()
     
-    print('Testing poly kernel')
-    svm.train_model(kernel='poly')
-    pred, _ = svm.make_prediction(tst)
-    cm, acc = get_accuracy(pred, tst_lbls)
-    print(acc)
-
-    plt.subplots()
-    sb.heatmap(cm, annot=True)
-    plt.show()
-
-    print('Testing rbf kernel')
-    svm.train_model(kernel='rbf')
-    pred, _ = svm.make_prediction(tst)
-    cm, acc = get_accuracy(pred, tst_lbls)
-    print(acc)
-
-    plt.subplots()
-    sb.heatmap(cm, annot=True)
-    plt.show()
-
-    print('Testing sigmoid kernel')
-    svm.train_model(kernel='sigmoid')
-    pred, _ = svm.make_prediction(tst)
-    cm, acc = get_accuracy(pred, tst_lbls)
-    print(acc)
-
-    plt.subplots()
-    sb.heatmap(cm, annot=True)
-    plt.show()
-
-def svm_cost_factors(trn, trn_lbls, tst, tst_lbls, kernel):
+def svm_poly_degree(trn, trn_lbls, tst, tst_lbls, degrees):
     acc = []
-    C = [0.01, 0.1, 1, 10, 100, 1000, 10000]
-    for c in C:
-        print(c)
-        svm = SVM(trn, trn_lbls, kernel=kernel, force_train=True, save_model=False, C=c)
+
+    for degree in degrees:
+        print(degree)
+        svm = SVM(trn, trn_lbls, kernel='poly', force_train=True, save_model=False, C=10, degree=degree)
         pred, _ = svm.make_prediction(tst)
         _, acr = get_accuracy(pred, tst_lbls)
         acc.append(acr)
         print(acc)
 
-    plt.subplots()
-    plt.semilogx(C, acc)
-    plt.grid()
-    plt.xlabel('Cost parameter C')
-    plt.ylabel('Accuracy')
-    plt.show()
+    fig, ax = plt.subplots(figsize=([8.0, 6.0/2]))
+    ax.plot(degrees, acc)
+    ax.xaxis.get_major_locator().set_params(integer=True)
+    ax.set_xlabel('Degree')
+    ax.set_ylabel('Accuracy')
+    ax.grid()
+    fig.tight_layout()
+
+def svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, gammas, kernels):
+    
+    fig, ax = plt.subplots(figsize=([8.0, 6.0/2]))
+
+    for kernel in kernels:
+        print(kernel)
+        acc = []
+        for g in gammas:
+            print(g)
+            svm = SVM(trn, trn_lbls, kernel=kernel, force_train=True, save_model=False, C=10, degree=3, gamma=g)
+            pred, _ = svm.make_prediction(tst)
+            _, acr = get_accuracy(pred, tst_lbls)
+            acc.append(acr)
+            print(acc)
+
+        ax.semilogx(gammas, acc, label=kernel)
+
+    ax.legend()
+    ax.grid()
+    ax.set_xlabel('Cost parameter C')
+    ax.set_ylabel('Accuracy')
+    fig.tight_layout()
