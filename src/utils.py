@@ -36,7 +36,7 @@ def load_MNIST(data_name, p=1, K=10, Norm=255.0):
     
     return data_set, labels
 
-def get_accuracy(tst_pred, tst_lbls):
+def get_accuracy(tst_pred, tst_lbls, fname=None):
     """
     Function to calculater confusion matrix and accuracy of prediction.
 
@@ -46,6 +46,11 @@ def get_accuracy(tst_pred, tst_lbls):
     cm = confusion_matrix(tst_lbls, tst_pred)
 
     acc = np.round(np.sum(np.diagonal(cm)) / np.sum(cm) * 100, 2)
+
+    if fname is not None:
+        plt.subplots()
+        sb.heatmap(cm, annot=True, fmt='g')
+        plt.savefig(f'confusion_matrix_{fname}.pdf', dpi=100)
 
     return cm, acc
 
