@@ -16,7 +16,7 @@ class MLP:
         save (bool): Save model if true
     """
 
-    def __init__(self, trn, trn_lbls, model=None, force_train=False, save_model=True, layer_size=500, solver='sgd', max_iter=500, alpha=0.0001):
+    def __init__(self, trn, trn_lbls, model=None, force_train=False, save_model=True, layer_size=500, solver='sgd', max_iter=500, alpha=0.01):
 
         self.trn = trn
         self.trn_lbls = trn_lbls

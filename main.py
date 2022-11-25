@@ -12,7 +12,7 @@ print(N, dim)
 
 do_svm = False
 do_mlp = True
-do_cnn = False
+do_cnn = True
 
 if do_svm:
 
@@ -32,10 +32,17 @@ if do_mlp:
 
     # MLP testing
     #mlp_layer_size(trn, trn_lbls, tst, tst_lbls, [10, 20, 50, 100, 200, 400, 500, 800, 1000])
-    mlp_regularization_term(trn, trn_lbls, tst, tst_lbls, [0.0001, 0.001, 0.01, 0.1, 1, 10])
+    #mlp_regularization_term(trn, trn_lbls, tst, tst_lbls, [0.0001, 0.001, 0.01, 0.1, 1, 10])
+
+    # Final MLP model
+    mlp = MLP(trn, trn_lbls, force_train=False, save_model=False, layer_size=500, alpha=0.01)
+    pred, _ = svm.make_prediction(tst)
+    _, acr = get_accuracy(pred, tst_lbls, fname='mlp')
+    print(acr)
 
 if do_cnn:
     # CNN
     cnn = CNN(trn, trn_lbls)
-    pred, _ = cnn.make_prediction(tst)
-    print(get_accuracy(pred, tst_lbls))
+    pred, _ = svm.make_prediction(tst)
+    _, acr = get_accuracy(pred, tst_lbls, fname='cnn')
+    print(acr)

@@ -36,18 +36,7 @@ class CNN:
             self.load_model()
 
     def train_model(self):
-        t0 = time.time()
-
-        # self.clf = keras.Sequential([keras.layers.Input(shape =self.input_shape),
-        #                   keras.layers.Conv2D(6, 5, padding = "same", activation = "relu"),
-        #                   keras.layers.AveragePooling2D(2),
-        #                   keras.layers.Conv2D(16, 5, activation = "relu"),
-        #                   keras.layers.AveragePooling2D(2),
-        #                   keras.layers.Conv2D(120, 5, activation = "relu"),
-        #                   keras.layers.Flatten(),
-        #                   keras.layers.Dense(84, activation = "relu"),
-        #                   keras.layers.Dense(self.num_classes, "softmax")],name="LeNet5")
-        
+        t0 = time.time()      
         self.clf = keras.Sequential()
         self.clf.add(keras.layers.Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=self.input_shape))
         self.clf.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
