@@ -29,10 +29,10 @@ if do_svm:
     print(acr)
 
 if do_mlp:
-    # MLP
-    mlp = MLP(trn, trn_lbls, layer_size=10)
-    pred, _ = mlp.make_prediction(tst)
-    print(get_accuracy(pred, tst_lbls))
+
+    # MLP testing
+    #mlp_layer_size(trn, trn_lbls, tst, tst_lbls, [10, 20, 50, 100, 200, 400, 500, 800, 1000])
+    mlp_regularization_term(trn, trn_lbls, tst, tst_lbls, [0.0001, 0.001, 0.01, 0.1, 1, 10])
 
 if do_cnn:
     # CNN

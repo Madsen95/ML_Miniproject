@@ -5,6 +5,7 @@ import seaborn as sb
 import matplotlib.pyplot as plt
 
 from src.SVM import SVM
+from src.MLP import MLP
 
 ## Multipurpose functions
 def load_MNIST(data_name, p=1, K=10, Norm=255.0):
@@ -148,3 +149,74 @@ def svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, gammas, kernels):
     ax.set_ylabel('Accuracy')
     fig.tight_layout()
     fig.savefig('dev_svm_gamma.pdf', dpi=100)
+
+## Test functions for MLP
+def mlp_layer_size(trn, trn_lbls, tst, tst_lbls, nodes):
+    
+    acc_tst = []
+    acc_trn = []
+    td = []
+
+    for node in nodes:
+
+        mlp = MLP(trn, trn_lbls, layer_size=node, force_train=True, save_model=False)
+        pred_tst, _ = mlp.make_prediction(tst)
+        pred_trn, _ = mlp.make_prediction(trn)
+        _, acr_tst = get_accuracy(pred_tst, tst_lbls)
+        _, acr_trn = get_accuracy(pred_trn, trn_lbls)
+        acc_tst.append(acr_tst)
+        acc_trn.append(acr_trn)
+        td.append(mlp.td)
+        print(acc_tst, acc_trn)
+
+    fig, ax = plt.subplots(figsize=([8.0, 6.0/2]))
+    ax.plot(np.array(nodes).astype('str'), acc_tst, label='Test accuracy')
+    ax.plot(np.array(nodes).astype('str'), acc_trn, label='Train accuracy')
+
+    ax2 = ax.twinx()
+    ax2.plot(np.array(nodes).astype('str'), td, c='C2', label='Trainig time')
+    ax2.set_ylabel('Training time [s]', color='C2')
+
+    ax.legend()
+    ax.grid()
+    ax.set_xlabel('Cost parameter C')
+    ax.set_ylabel('Accuracy')
+    fig.tight_layout()
+    fig.savefig('dev_mlp_layers.pdf', dpi=100)
+
+def mlp_regularization_term(trn, trn_lbls, tst, tst_lbls, alphas):
+    
+    acc_tst = []
+    acc_trn = []
+    td = []
+
+    for alpha in alphas:
+
+        mlp = MLP(trn, trn_lbls, alpha=alpha, force_train=True, save_model=False)
+        pred_tst, _ = mlp.make_prediction(tst)
+        pred_trn, _ = mlp.make_prediction(trn)
+        _, acr_tst = get_accuracy(pred_tst, tst_lbls)
+        _, acr_trn = get_accuracy(pred_trn, trn_lbls)
+        acc_tst.append(acr_tst)
+        acc_trn.append(acr_trn)
+        td.append(mlp.td)
+        print(acc_tst, acc_trn)
+
+    fig, ax = plt.subplots(figsize=([8.0, 6.0/2]))
+    ax.plot(np.array(alphas).astype('str'), acc_tst, label='Test accuracy')
+    ax.plot(np.array(alphas).astype('str'), acc_trn, label='Train accuracy')
+
+    ax2 = ax.twinx()
+    ax2.plot(np.array(alphas).astype('str'), td, c='C2', label='Trainig time')
+    ax2.set_ylabel('Training time [s]', color='C2')
+
+    ax.legend()
+    ax.grid()
+    ax.set_xlabel('Regularization term l2')
+    ax.set_ylabel('Accuracy')
+    fig.tight_layout()
+    fig.savefig('dev_mlp_alphas.pdf', dpi=100)
+
+    print('tst', acc_tst)
+    print('trn', acc_trn)
+    print('td', td)
