@@ -288,7 +288,7 @@ def mlp_regularization_term(trn, trn_lbls, tst, tst_lbls, alphas):
 
 
 ## Common functions
-def execution_times(trn, trn_lbls, sizes=[0.01, 0.05]):
+def execution_times(sizes=[0.01, 0.05]):
     """
     Common test function: Measure the training time for MLP and SVM at different
     sizes of training sets. Plot the result, and create another figure to show

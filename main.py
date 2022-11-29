@@ -10,13 +10,13 @@ tst, tst_lbls = load_MNIST('test', p=1)
 N, dim = trn.shape
 print(N, dim)
 
-do_svm = True
-do_mlp = True
+do_svm = False
+do_mlp = False
 do_cnn = True
 
 if __name__ == '__main__':
 
-    execution_times(trn, trn_lbls, [0.1, 0.2, 0.4, 0.6, 0.8, 1])
+    #execution_times([0.1, 0.2, 0.4, 0.6, 0.8, 1])
 
     if do_svm:
 
@@ -27,10 +27,11 @@ if __name__ == '__main__':
         #svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, [0.001, 0.01, 0.1, 1], ['poly', 'rbf'])
 
         # Final SVM model
-        svm = SVM(trn, trn_lbls, kernel='rbf', force_train=False, save_model=True, C=10, gamma='scale')
+        svm = SVM(trn, trn_lbls, kernel='rbf', force_train=True, save_model=True, C=10, gamma='scale')
         pred, _ = svm.make_prediction(tst)
-        _, acr = get_accuracy(pred, tst_lbls, fname='svm')
+        cm, acr = get_accuracy(pred, tst_lbls, fname='svm')
         print(acr)
+        print(cm)
 
     if do_mlp:
 
@@ -39,14 +40,16 @@ if __name__ == '__main__':
         #mlp_regularization_term(trn, trn_lbls, tst, tst_lbls, [0.0001, 0.001, 0.01, 0.1, 1, 10])
 
         # Final MLP model
-        mlp = MLP(trn, trn_lbls, force_train=False, save_model=True, layer_size=500, alpha=0.01)
-        pred, _ = svm.make_prediction(tst)
-        _, acr = get_accuracy(pred, tst_lbls, fname='mlp')
+        mlp = MLP(trn, trn_lbls, force_train=True, save_model=True, layer_size=500, alpha=0.01)
+        pred, _ = mlp.make_prediction(tst)
+        cm, acr = get_accuracy(pred, tst_lbls, fname='mlp')
         print(acr)
+        print(cm)
 
     if do_cnn:
         # CNN
-        cnn = CNN(trn, trn_lbls)
-        pred, _ = svm.make_prediction(tst)
-        _, acr = get_accuracy(pred, tst_lbls, fname='cnn')
+        cnn = CNN(trn, trn_lbls, force_train=True, save_model=True)
+        pred, _ = cnn.make_prediction(tst)
+        cm, acr = get_accuracy(pred, tst_lbls, fname='cnn')
         print(acr)
+        print(cm)
