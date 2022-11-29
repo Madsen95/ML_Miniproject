@@ -3,6 +3,7 @@ from scipy.io import loadmat
 from sklearn.metrics import confusion_matrix
 import seaborn as sb
 import matplotlib.pyplot as plt
+import time
 
 from src.SVM import SVM
 from src.MLP import MLP
@@ -39,10 +40,16 @@ def load_MNIST(data_name, p=1, K=10, Norm=255.0):
 
 def get_accuracy(tst_pred, tst_lbls, fname=None):
     """
-    Function to calculater confusion matrix and accuracy of prediction.
+    Get confusion matrix and calculate overall classification accuracy.
+    If fname is set, the confusion matrix will be plotted.
 
     Args:
+        tst_pred (np.array): Predicted labels
+        tst_lbls (np.array): True labels
+        fname (string): Filename for saved plot
     Returns:
+        cm (np.array): Confusion matrix
+        acc (float): Overall classification accuracy
     """
     cm = confusion_matrix(tst_lbls, tst_pred)
 
@@ -51,13 +58,22 @@ def get_accuracy(tst_pred, tst_lbls, fname=None):
     if fname is not None:
         plt.subplots()
         sb.heatmap(cm, annot=True, fmt='g')
-        plt.savefig(f'confusion_matrix_{fname}.pdf', dpi=100)
+        plt.savefig(f'data/confusion_matrix_{fname}.pdf', dpi=100)
 
     return cm, acc
 
 ## Test functions for SVM
 def svm_kernel(trn, trn_lbls, tst, tst_lbls, kernels):
+    """
+    SVM test function: Try different kernels and plot confusion matrices.
 
+    Args:
+        trn (np.array): Training data
+        trn_lbls (np.array): Training labels
+        tst (np.array): Test data
+        tst_lbls (np.array): Test labels
+        kernels (list): List of strings for kernels
+    """
     for kernel in kernels:
 
         print('Testing kernel:', kernel)
@@ -71,7 +87,16 @@ def svm_kernel(trn, trn_lbls, tst, tst_lbls, kernels):
         plt.show()
 
 def svm_cost_factors(trn, trn_lbls, tst, tst_lbls, kernels):
+    """
+    SVM test function: Try different cost parameters for choosen kernels.
 
+    Args:
+        trn (np.array): Training data
+        trn_lbls (np.array): Training labels
+        tst (np.array): Test data
+        tst_lbls (np.array): Test labels
+        kernels (list): List of strings for kernels
+    """
     fig, ax = plt.subplots(figsize=([8.0, 6.0/2]))
 
     for kernel in kernels:
@@ -95,6 +120,16 @@ def svm_cost_factors(trn, trn_lbls, tst, tst_lbls, kernels):
     #fig.savefig('dev_svm_C.pdf', dpi=100)
     
 def svm_poly_degree(trn, trn_lbls, tst, tst_lbls, degrees):
+    """
+    SVM test function: Try different polynomia degrees
+
+    Args:
+        trn (np.array): Training data
+        trn_lbls (np.array): Training labels
+        tst (np.array): Test data
+        tst_lbls (np.array): Test labels
+        kernels (list): List of strings for kernels
+    """
     acc = []
 
     for degree in degrees:
@@ -116,6 +151,17 @@ def svm_poly_degree(trn, trn_lbls, tst, tst_lbls, degrees):
     fig.savefig('dev_svm_poly_degree.pdf', dpi=100)
 
 def svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, gammas, kernels):
+    """
+    SVM test function: Try different gamma parameters.
+
+    Args:
+        trn (np.array): Training data
+        trn_lbls (np.array): Training labels
+        tst (np.array): Test data
+        tst_lbls (np.array): Test labels
+        gammas (np.array): Gammas to test
+        kernels (list): List of strings for kernels
+    """
     
     fig, ax = plt.subplots(figsize=([8.0, 6.0/2]))
 
@@ -152,6 +198,16 @@ def svm_gamma_factors(trn, trn_lbls, tst, tst_lbls, gammas, kernels):
 
 ## Test functions for MLP
 def mlp_layer_size(trn, trn_lbls, tst, tst_lbls, nodes):
+    """
+    MLP test function: Try different sizes of hidden nodes
+
+    Args:
+        trn (np.array): Training data
+        trn_lbls (np.array): Training labels
+        tst (np.array): Test data
+        tst_lbls (np.array): Test labels
+        nodes (list): List of nodes to test
+    """
     
     acc_tst = []
     acc_trn = []
@@ -185,7 +241,16 @@ def mlp_layer_size(trn, trn_lbls, tst, tst_lbls, nodes):
     fig.savefig('dev_mlp_layers.pdf', dpi=100)
 
 def mlp_regularization_term(trn, trn_lbls, tst, tst_lbls, alphas):
-    
+    """
+    MLP test function: Try different alphas 
+
+    Args:
+        trn (np.array): Training data
+        trn_lbls (np.array): Training labels
+        tst (np.array): Test data
+        tst_lbls (np.array): Test labels
+        alphas (list): List of alphas to test
+    """
     acc_tst = []
     acc_trn = []
     td = []
@@ -220,3 +285,79 @@ def mlp_regularization_term(trn, trn_lbls, tst, tst_lbls, alphas):
     print('tst', acc_tst)
     print('trn', acc_trn)
     print('td', td)
+
+
+## Common functions
+def execution_times(trn, trn_lbls, sizes=[0.01, 0.05]):
+    """
+    Common test function: Measure the training time for MLP and SVM at different
+    sizes of training sets. Plot the result, and create another figure to show
+    how long prediction times take.
+
+    Args:
+        trn (np.array): Training data
+        trn_lbls (np.array): Training labels
+        sizes (list): List of training set sizes to use
+    """
+    svm_train = []
+    svm_pred = []
+    mlp_train = []
+    mlp_pred = []
+
+    for i, size in enumerate(sizes):
+        trn, trn_lbls = load_MNIST('train', p=size)
+        print(f'\nTest {i+1}/{len(sizes)}')
+
+        print(f'Training SVM, size = {size}')
+        t0 = time.time()
+        svm = SVM(trn, trn_lbls, force_train=True, save_model=False)     
+        t1 = time.time()
+        td = t1 - t0
+        svm_train.append(td)
+        print(svm_train)
+
+        print(f'SVM prediction starting...')
+        t0 = time.time()
+        _, _ = svm.make_prediction(trn)
+        t1 = time.time()
+        td = t1 - t0
+        svm_pred.append(td)
+        print(svm_pred)
+
+        print(f'Training MLP, size = {size}')
+        t0 = time.time()
+        mlp = MLP(trn, trn_lbls, force_train=True, save_model=False) 
+        t1 = time.time()
+        td = t1 - t0
+        mlp_train.append(td)
+        print(mlp_train)
+
+        print(f'MLP prediction starting...')
+        t0 = time.time()
+        _, _ = mlp.make_prediction(trn)
+        t1 = time.time()
+        td = t1 - t0
+        mlp_pred.append(td)
+        print(mlp_pred)
+
+    fig, ax = plt.subplots(2, sharex=True)
+    ax[0].set_title('Training time')
+    ax[0].grid()
+    ax[0].plot((np.array(sizes)*100).astype('str'), svm_train, c='C0')
+    ax0 = ax[0].twinx()
+    ax0.plot((np.array(sizes)*100).astype('str'), mlp_train, c='C1')
+    ax[0].set_ylabel('SVM training time', c='C0')
+    ax0.set_ylabel('MLP training time', c='C1')
+
+    ax[1].set_title('Prediction time')
+    ax[1].grid()
+    ax[1].plot((np.array(sizes)*100).astype('str'), svm_pred, c='C0')
+    ax1 = ax[1].twinx()
+    ax1.plot((np.array(sizes)*100).astype('str'), mlp_pred, c='C1')
+    ax[1].set_ylabel('SVM prediction time', c='C0')
+    ax1.set_ylabel('MLP prediction time', c='C1')
+
+    ax[1].set_xlabel('Percentage of training data')
+    fig.tight_layout()
+
+    fig.savefig('execution_times.pdf', dpi=100)

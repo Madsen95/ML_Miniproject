@@ -36,7 +36,7 @@ class MLP:
             self.layer_size = len(np.unique(trn_lbls))
 
         if self.model is None:
-            self.model = f'data/SVM_{self.dim}dim_{self.N}trn.joblib'
+            self.model = f'data/MLP_{self.dim}dim_{self.N}trn.joblib'
             print(f'Looking for model {self.model}')
             if self.force_train:
                 print('Force training model')

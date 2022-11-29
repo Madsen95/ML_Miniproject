@@ -90,6 +90,7 @@ class CNN:
             ax2.set_ylabel('Training Accuracy')
 
             fig.legend()
+            fig.savefig('training_cnn.pdf', dpi=100)
     
     def make_prediction(self, tst):
         """
