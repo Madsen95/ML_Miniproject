@@ -46,6 +46,7 @@ class CNN:
         t0 = time.time()      
         self.clf = keras.Sequential()
         self.clf.add(keras.layers.Conv2D(32, kernel_size=(3, 3), activation='relu', input_shape=self.input_shape))
+        self.clf.add(keras.layers.MaxPooling2D(pool_size=(2, 2)))
         self.clf.add(keras.layers.Conv2D(64, (3, 3), activation='relu'))
         self.clf.add(keras.layers.MaxPooling2D(pool_size=(2, 2)))
         self.clf.add(keras.layers.Dropout(0.25))
